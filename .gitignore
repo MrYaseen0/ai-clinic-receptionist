@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# Environment files (never commit real keys)
+.env
+.env.local
+.env*.local
+
+# Debug
+npm-debug.log*
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Demo booking data
+data/bookings.json
+data/lab.json
