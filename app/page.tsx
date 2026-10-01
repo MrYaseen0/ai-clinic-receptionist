@@ -63,6 +63,61 @@ const STEPS = [
   },
 ];
 
+const LAB_FEATURES = [
+  {
+    title: "End-to-end order workflow",
+    desc: "Every lab order moves through registered → sample collected → in lab → under review → approved → report released, with a visible status timeline — the backbone of any serious clinic management system.",
+  },
+  {
+    title: "Automatic H/L flagging & critical alerts",
+    desc: "Technicians enter per-parameter results; values are flagged High/Low against reference ranges automatically, and critical values raise alerts that block approval until acknowledged.",
+  },
+  {
+    title: "One-click PDF lab reports",
+    desc: "Approved orders generate real downloadable PDF reports with barcode, flagged results table and pathologist notes.",
+  },
+  {
+    title: "Billing, inventory & quality control",
+    desc: "Invoices with payment history, reagent stock with low-stock and expiry alerts, and Levey-Jennings QC charts — full lab operations, not just test orders.",
+  },
+  {
+    title: "AI lab test booking in Roman Urdu",
+    desc: "Patients say “mujhe CBC test karwana hai” and the bilingual clinic chatbot creates the lab order — AI appointment booking extended to diagnostics.",
+  },
+  {
+    title: "Role-based workflows for real clinics",
+    desc: "Demo roles for Admin, Lab Manager, Receptionist, Technician and Pathologist mirror how a real laboratory management system divides daily work.",
+  },
+];
+
+const FAQS = [
+  {
+    q: "Is AI Clinic Receptionist really free?",
+    a: "Yes. It is free open-source lab and clinic software under the MIT license — you can self-host it, modify it and use it commercially at no cost.",
+  },
+  {
+    q: "How does Roman Urdu appointment booking work?",
+    a: "The bilingual clinic chatbot understands both English and Roman Urdu. Type “mujhe skin specialist se milna hai” and it collects the doctor, date, time, your name and phone number, then confirms with a booking ID — no app or phone call needed.",
+  },
+  {
+    q: "Do I need an API key to run it?",
+    a: "No. It ships with a zero-config mock AI mode that works out of the box. Add a Groq API key only if you want LLM-powered replies (llama-3.3-70b).",
+  },
+  {
+    q: "Can my clinic self-host it?",
+    a: "Yes. Clone the repo, run npm install and npm run dev — it also deploys to Vercel with zero config. The demo stores data in JSON files; for real patient data, connect a proper database like Supabase or Postgres.",
+  },
+  {
+    q: "What lab features does Labortis Pro include?",
+    a: "Patient registry, an 18-test catalog with reference ranges, orders with barcode sample tracking, technician result entry with automatic H/L flags, critical value alerts, pathologist review, PDF reports, billing, analytics, inventory and QC charts.",
+  },
+  {
+    q: "Who built AI Clinic Receptionist?",
+    a: "It is developed by Yaseen Ahmad, a full-stack developer from Peshawar, Pakistan.",
+    link: { text: "yaseenahmadexe.vercel.app", href: "https://yaseenahmadexe.vercel.app" },
+  },
+];
+
 export default function Home() {
   const jsonLd = {
     "@context": "https://schema.org",
@@ -81,11 +136,28 @@ export default function Home() {
       "Free open-source AI receptionist for clinics. Bilingual chatbot books appointments 24/7 in English and Roman Urdu.",
   };
 
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQS.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: f.a + (f.link ? ` ${f.link.text}: ${f.link.href}` : ""),
+      },
+    })),
+  };
+
   return (
     <div>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       {/* HERO */}
       <section className="bg-gradient-to-b from-brand-50 to-white">
@@ -240,6 +312,71 @@ export default function Home() {
               <h3 className="mt-4 text-lg font-semibold text-slate-900">{s.title}</h3>
               <p className="mt-1 text-sm text-slate-600">{s.desc}</p>
             </div>
+          ))}
+        </div>
+      </section>
+
+      {/* LABORTIS PRO — LAB MANAGEMENT */}
+      <section className="bg-slate-50">
+        <div className="mx-auto max-w-6xl px-4 py-16">
+          <h2 className="max-w-3xl text-3xl font-bold text-slate-900">
+            Labortis Pro — built to be the best free open-source laboratory management system
+          </h2>
+          <p className="mt-3 max-w-3xl text-slate-600">
+            A complete LIMS software module inside the clinic: from AI test booking
+            to the released PDF report, everything a modern diagnostic lab needs —
+            free, open source and self-hostable.
+          </p>
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {LAB_FEATURES.map((f) => (
+              <div key={f.title} className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md">
+                <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-brand-50 text-brand-700">
+                  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <path d="M9 3h6M10 3v5l-5 9a2.4 2.4 0 002.1 3.6h9.8A2.4 2.4 0 0019 17l-5-9V3" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M7.5 14h9" strokeLinecap="round" />
+                  </svg>
+                </span>
+                <h3 className="mt-4 text-lg font-semibold text-slate-900">{f.title}</h3>
+                <p className="mt-1 text-sm text-slate-600">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+          <a
+            href="/lab"
+            className="mt-8 inline-block rounded-lg bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow hover:bg-brand-700"
+          >
+            Explore Labortis Pro
+          </a>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="mx-auto max-w-6xl px-4 py-16">
+        <h2 className="text-3xl font-bold text-slate-900">Frequently asked questions</h2>
+        <p className="mt-2 max-w-3xl text-slate-600">
+          Everything clinics ask before trying the best free LIMS software for their practice.
+        </p>
+        <div className="mt-8 max-w-3xl space-y-3">
+          {FAQS.map((f) => (
+            <details key={f.q} className="group rounded-xl border border-slate-200 bg-white px-5 shadow-sm">
+              <summary className="cursor-pointer list-none py-4 text-base font-semibold text-slate-900 marker:hidden [&::-webkit-details-marker]:hidden">
+                <span className="flex items-center justify-between gap-4">
+                  {f.q}
+                  <span className="text-xl font-normal text-brand-600 transition-transform group-open:rotate-45">+</span>
+                </span>
+              </summary>
+              <p className="pb-5 text-sm leading-relaxed text-slate-600">
+                {f.a}
+                {f.link && (
+                  <>
+                    {" "}
+                    <a href={f.link.href} target="_blank" rel="noopener noreferrer" className="font-semibold text-brand-700 hover:text-brand-600">
+                      {f.link.text}
+                    </a>
+                  </>
+                )}
+              </p>
+            </details>
           ))}
         </div>
       </section>

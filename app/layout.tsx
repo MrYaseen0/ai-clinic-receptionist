@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import ChatWidget from "@/components/ChatWidget";
+import MobileNav from "@/components/MobileNav";
 import { CLINIC } from "@/lib/doctors";
 
 export const metadata: Metadata = {
@@ -69,11 +70,11 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
-          <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+          <nav className="relative mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
             <a href="/">
               <Logo />
             </a>
-            <div className="flex items-center gap-1 sm:gap-2">
+            <div className="hidden items-center gap-1 sm:gap-2 md:flex">
               <a href="/" className="rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900">
                 Home
               </a>
@@ -93,6 +94,7 @@ export default function RootLayout({
                 Book Appointment
               </button>
             </div>
+            <MobileNav />
           </nav>
         </header>
 

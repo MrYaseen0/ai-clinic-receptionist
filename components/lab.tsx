@@ -176,9 +176,11 @@ export function Barcode({ text, height = 44 }: { text: string; height?: number }
     bars.push({ x, w });
     x += w + 1.6;
   }
+  // The monospace caption (~6px/char at 10px font) needs more room than the bars.
+  const width = Math.max(Math.ceil(x), Math.ceil(text.length * 6.2));
   return (
     <div>
-      <svg width={Math.ceil(x)} height={height} aria-label={`Barcode ${text}`}>
+      <svg width={width} height={height} aria-label={`Barcode ${text}`}>
         {bars.map((b, i) => (
           <rect key={i} x={b.x} y={0} width={b.w} height={height - 12} fill="#0f172a" />
         ))}

@@ -66,7 +66,8 @@ export default function PatientDetail({ params }: { params: { id: string } }) {
       </Card>
       <Card className="!p-0 overflow-hidden">
         <h2 className="border-b border-slate-100 px-5 py-4 text-base font-semibold">Order history</h2>
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[600px] text-sm">
           <thead>
             <tr className="bg-slate-50 text-left text-xs uppercase text-slate-500">
               <th className="px-4 py-3">Order</th>
@@ -80,7 +81,7 @@ export default function PatientDetail({ params }: { params: { id: string } }) {
             {data.orders.map((o) => (
               <tr key={o.id} className="hover:bg-slate-50">
                 <td className="px-4 py-3">
-                  <Link href={`/lab/orders/${o.id}`} className="font-mono font-semibold text-brand-700 hover:underline">
+                  <Link href={`/lab/orders/${o.id}`} className="whitespace-nowrap font-mono font-semibold text-brand-700 hover:underline">
                     {o.id}
                   </Link>
                 </td>
@@ -95,6 +96,7 @@ export default function PatientDetail({ params }: { params: { id: string } }) {
             )}
           </tbody>
         </table>
+        </div>
       </Card>
     </div>
   );

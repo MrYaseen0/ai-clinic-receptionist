@@ -134,7 +134,8 @@ export default function PatientsPage() {
       {err && <p className="mb-4 text-sm text-red-600">{err}</p>}
 
       <Card className="!p-0 overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[560px] text-sm">
           <thead>
             <tr className="bg-slate-50 text-left text-xs uppercase text-slate-500">
               <th className="px-4 py-3">Serial</th>
@@ -146,13 +147,13 @@ export default function PatientsPage() {
           <tbody className="divide-y divide-slate-100">
             {items.map((p) => (
               <tr key={p.id} className="hover:bg-slate-50">
-                <td className="px-4 py-3 font-mono text-xs">{p.serial}</td>
+                <td className="whitespace-nowrap px-4 py-3 font-mono text-xs">{p.serial}</td>
                 <td className="px-4 py-3">
                   <Link href={`/lab/patients/${p.id}`} className="font-medium text-brand-700 hover:underline">
                     {p.name}
                   </Link>
                 </td>
-                <td className="px-4 py-3">{p.phone}</td>
+                <td className="whitespace-nowrap px-4 py-3">{p.phone}</td>
                 <td className="px-4 py-3 text-slate-600">
                   {p.age} / {p.gender}
                 </td>
@@ -167,6 +168,7 @@ export default function PatientsPage() {
             )}
           </tbody>
         </table>
+        </div>
       </Card>
     </div>
   );

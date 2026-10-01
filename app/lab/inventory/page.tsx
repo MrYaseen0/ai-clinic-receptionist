@@ -175,7 +175,8 @@ export default function InventoryPage() {
       {err && <p className="mb-4 text-sm text-red-600">{err}</p>}
 
       <Card className="!p-0 overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[760px] text-sm">
           <thead>
             <tr className="bg-slate-50 text-left text-xs uppercase text-slate-500">
               <th className="px-4 py-3">Item</th>
@@ -193,12 +194,12 @@ export default function InventoryPage() {
                   <span className="font-medium">{i.name}</span>
                   <span className="ml-2 text-xs text-slate-400">{i.category}</span>
                 </td>
-                <td className="px-4 py-3 font-mono text-xs">{i.lot || "—"}</td>
+                <td className="whitespace-nowrap px-4 py-3 font-mono text-xs">{i.lot || "—"}</td>
                 <td className="px-4 py-3 text-right font-semibold">
                   {i.qty} <span className="font-normal text-slate-400">{i.unit}</span>
                   {i.qty <= i.minStock && <span className="ml-1 text-xs text-red-600">LOW</span>}
                 </td>
-                <td className="px-4 py-3 font-mono text-xs">{i.expiry}</td>
+                <td className="whitespace-nowrap px-4 py-3 font-mono text-xs">{i.expiry}</td>
                 <td className="px-4 py-3 text-slate-600">{i.supplier || "—"}</td>
                 <td className="px-4 py-3">
                   <span className="flex gap-1">
@@ -211,6 +212,7 @@ export default function InventoryPage() {
             ))}
           </tbody>
         </table>
+        </div>
       </Card>
     </div>
   );

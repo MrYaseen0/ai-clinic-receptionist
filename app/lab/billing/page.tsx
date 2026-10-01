@@ -90,7 +90,8 @@ export default function BillingPage() {
       />
       {err && <p className="mb-4 text-sm text-red-600">{err}</p>}
       <Card className="!p-0 overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[680px] text-sm">
           <thead>
             <tr className="bg-slate-50 text-left text-xs uppercase text-slate-500">
               <th className="px-4 py-3">Invoice</th>
@@ -106,7 +107,7 @@ export default function BillingPage() {
             {items.map((i) => (
               <tr key={i.order.id} className="hover:bg-slate-50">
                 <td className="px-4 py-3">
-                  <Link href={`/lab/billing/${i.order.id}`} className="font-mono font-semibold text-brand-700 hover:underline">
+                  <Link href={`/lab/billing/${i.order.id}`} className="whitespace-nowrap font-mono font-semibold text-brand-700 hover:underline">
                     {i.order.id}
                   </Link>
                 </td>
@@ -157,6 +158,7 @@ export default function BillingPage() {
             )}
           </tbody>
         </table>
+        </div>
       </Card>
     </div>
   );

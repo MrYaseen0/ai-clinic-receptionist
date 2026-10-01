@@ -126,7 +126,9 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
         </Card>
         <Card>
           <h3 className="mb-2 text-xs font-semibold uppercase text-slate-500">Barcode</h3>
-          <Barcode text={o.barcode} />
+          <div className="overflow-x-auto">
+            <Barcode text={o.barcode} />
+          </div>
         </Card>
       </div>
 
