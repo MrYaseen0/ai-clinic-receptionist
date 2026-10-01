@@ -6,6 +6,9 @@ import { CLINIC } from "@/lib/doctors";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://ai-clinic-receptionist-gold.vercel.app"),
+  verification: {
+    google: "F2uI67yfxNTY9YSi8S7-n_mksLeaRPRUpiRInERoxyI",
+  },
   title: "AI Clinic Receptionist — Free Open-Source AI Appointment Booking",
   description:
     "Free open-source AI receptionist for clinics. Bilingual chatbot books appointments 24/7 in English and Roman Urdu. Live Next.js demo — no signup needed.",
