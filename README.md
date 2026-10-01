@@ -167,6 +167,12 @@ Copy `.env.example` to `.env.local`:
 | `GROQ_API_KEY` | Only for `groq` | — | Free key from [console.groq.com](https://console.groq.com) |
 | `ADMIN_PASSWORD` | **Yes, on production** | `demo123` (dev only) | Password for `/admin`. **Set this on every public deploy** — in production with no `ADMIN_PASSWORD`, the admin panel and API fail closed (503 "Admin not configured"). |
 
+## Database (Neon Postgres)
+
+Appointments and all Labortis Pro data live in Postgres on Neon. On Vercel the connection is automatic: the Neon integration injects `DATABASE_URL` (pooled) into Production, Preview and Development — the app creates the schema itself on first use (`CREATE TABLE IF NOT EXISTS`) and seeds the demo lab data when the tables are empty (visit `/lab` or `POST /api/lab/seed`).
+
+Locally, with no `DATABASE_URL` set, the app falls back to JSON files in `data/` — zero-config development, nothing to install.
+
 ## Project structure
 
 ```
