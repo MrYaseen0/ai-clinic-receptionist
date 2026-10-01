@@ -48,6 +48,15 @@ Zero config to try: the default `mock` AI engine is rule-based and works fully o
 ### Doctors page
 ![Doctors page](docs/screenshots/doctors.png)
 
+### Lab (LIMS) — dashboard
+![Lab dashboard](docs/screenshots/lab-dashboard.png)
+
+### Lab (LIMS) — technician work queue
+![Technician work queue](docs/screenshots/lab-queue.png)
+
+### Lab (LIMS) — pathologist review
+![Pathologist review queue](docs/screenshots/lab-review.png)
+
 ---
 
 ## Features
