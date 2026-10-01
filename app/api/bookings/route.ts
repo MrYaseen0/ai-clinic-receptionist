@@ -21,17 +21,17 @@ export async function POST(req: NextRequest) {
     }
 
     if (body.action === "cancel" && body.id) {
-      const b = cancelBooking(String(body.id));
+      const b = await cancelBooking(String(body.id));
       if (!b) {
         return NextResponse.json(
           { error: "Booking not found." },
           { status: 404 }
         );
       }
-      return NextResponse.json({ booking: b, bookings: listBookings() });
+      return NextResponse.json({ booking: b, bookings: await listBookings() });
     }
 
-    return NextResponse.json({ bookings: listBookings() });
+    return NextResponse.json({ bookings: await listBookings() });
   } catch {
     return NextResponse.json(
       { error: "Could not load bookings." },

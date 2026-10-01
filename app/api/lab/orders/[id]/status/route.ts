@@ -21,7 +21,7 @@ export async function PUT(
   if (isRateLimited(`lab:${ip}`, 60, 60_000)) {
     return NextResponse.json({ error: "Too many requests." }, { status: 429 });
   }
-  seedIfEmpty();
+  await seedIfEmpty();
   try {
     const body = await req.json();
     const to = body?.to as OrderStatus;
@@ -31,7 +31,7 @@ export async function PUT(
     if (!ORDER_STATUSES.includes(to))
       return NextResponse.json({ error: "Invalid target status." }, { status: 400 });
 
-    const db = loadDb();
+    const db = await loadDb();
     const order = db.orders.find((o) => o.id === params.id);
     if (!order)
       return NextResponse.json({ error: "Order not found." }, { status: 404 });
@@ -70,7 +70,7 @@ export async function PUT(
       ...(note ? { note } : {}),
     });
     order.status = to;
-    saveDb();
+    await saveDb();
     return NextResponse.json({ order });
   } catch {
     return NextResponse.json({ error: "Could not update status." }, { status: 500 });

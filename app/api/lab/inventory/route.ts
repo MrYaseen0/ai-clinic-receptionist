@@ -5,24 +5,24 @@ import { seedIfEmpty } from "@/lib/lab-seed";
 
 export const dynamic = "force-dynamic";
 
-function ok(req: NextRequest): NextResponse | null {
+async function ok(req: NextRequest): Promise<NextResponse | null> {
   const ip = getClientIp(req);
   if (isRateLimited(`lab:${ip}`, 120, 60_000)) {
     return NextResponse.json({ error: "Too many requests." }, { status: 429 });
   }
-  seedIfEmpty();
+  await seedIfEmpty();
   return null;
 }
 
 export async function GET(req: NextRequest) {
-  const lim = ok(req);
+  const lim = await ok(req);
   if (lim) return lim;
-  const db = loadDb();
+  const db = await loadDb();
   return NextResponse.json({ items: db.inventory });
 }
 
 export async function POST(req: NextRequest) {
-  const lim = ok(req);
+  const lim = await ok(req);
   if (lim) return lim;
   try {
     const body = await req.json();
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(expiry))
       return NextResponse.json({ error: "Expiry must be YYYY-MM-DD." }, { status: 400 });
 
-    const db = loadDb();
+    const db = await loadDb();
     const item = {
       id: newItemId(),
       name,
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
       supplier,
     };
     db.inventory.push(item);
-    saveDb();
+    await saveDb();
     return NextResponse.json({ item }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Could not add item." }, { status: 500 });

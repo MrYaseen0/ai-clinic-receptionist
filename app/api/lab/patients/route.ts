@@ -12,19 +12,19 @@ import { seedIfEmpty } from "@/lib/lab-seed";
 
 export const dynamic = "force-dynamic";
 
-function ok(req: NextRequest): NextResponse | null {
+async function ok(req: NextRequest): Promise<NextResponse | null> {
   const ip = getClientIp(req);
   if (isRateLimited(`lab:${ip}`, 120, 60_000)) {
     return NextResponse.json({ error: "Too many requests." }, { status: 429 });
   }
-  seedIfEmpty();
+  await seedIfEmpty();
   return null;
 }
 
 export async function GET(req: NextRequest) {
-  const lim = ok(req);
+  const lim = await ok(req);
   if (lim) return lim;
-  const db = loadDb();
+  const db = await loadDb();
   const { searchParams } = new URL(req.url);
   const q = (searchParams.get("search") || "").toLowerCase().trim();
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10) || 1);
@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const lim = ok(req);
+  const lim = await ok(req);
   if (lim) return lim;
   try {
     const body = await req.json();
@@ -81,10 +81,10 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
 
-    const db = loadDb();
+    const db = await loadDb();
     const patient = {
       id: newPatientId(),
-      serial: nextPatientSerial(),
+      serial: await nextPatientSerial(),
       name,
       phone,
       age,
@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString(),
     };
     db.patients.push(patient);
-    saveDb();
+    await saveDb();
     return NextResponse.json({ patient }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Could not register patient." }, { status: 500 });

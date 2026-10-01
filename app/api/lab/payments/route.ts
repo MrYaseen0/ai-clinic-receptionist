@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
   if (isRateLimited(`lab:${ip}`, 60, 60_000)) {
     return NextResponse.json({ error: "Too many requests." }, { status: 429 });
   }
-  seedIfEmpty();
+  await seedIfEmpty();
   try {
     const body = await req.json();
     const orderId = typeof body?.orderId === "string" ? body.orderId : "";
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
 
-    const db = loadDb();
+    const db = await loadDb();
     const order = db.orders.find((o) => o.id === orderId);
     if (!order)
       return NextResponse.json({ error: "Order not found." }, { status: 404 });
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
       receivedBy,
     };
     order.payments.push(payment);
-    saveDb();
+    await saveDb();
     return NextResponse.json({ payment, due: balanceDue(order) }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Could not record payment." }, { status: 500 });

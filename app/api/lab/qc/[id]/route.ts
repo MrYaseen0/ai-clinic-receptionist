@@ -5,12 +5,12 @@ import { seedIfEmpty } from "@/lib/lab-seed";
 
 export const dynamic = "force-dynamic";
 
-function ok(req: NextRequest): NextResponse | null {
+async function ok(req: NextRequest): Promise<NextResponse | null> {
   const ip = getClientIp(req);
   if (isRateLimited(`lab:${ip}`, 120, 60_000)) {
     return NextResponse.json({ error: "Too many requests." }, { status: 429 });
   }
-  seedIfEmpty();
+  await seedIfEmpty();
   return null;
 }
 
@@ -37,7 +37,7 @@ export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const lim = ok(req);
+  const lim = await ok(req);
   if (lim) return lim;
   try {
     const body = await req.json();
@@ -49,7 +49,7 @@ export async function POST(
     if (!Number.isFinite(value))
       return NextResponse.json({ error: "Value must be a number." }, { status: 400 });
 
-    const db = loadDb();
+    const db = await loadDb();
     const control = db.qc.find((c) => c.id === params.id);
     if (!control)
       return NextResponse.json({ error: "Control not found." }, { status: 404 });
@@ -59,7 +59,7 @@ export async function POST(
     const violation = evaluate(control.mean, control.sd, value, prevZ);
     const run = { date, value, ...(violation ? { violation } : {}) };
     control.runs.push(run);
-    saveDb();
+    await saveDb();
     return NextResponse.json({ run }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Could not log run." }, { status: 500 });
@@ -71,9 +71,9 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const lim = ok(req);
+  const lim = await ok(req);
   if (lim) return lim;
-  const db = loadDb();
+  const db = await loadDb();
   const control = db.qc.find((c) => c.id === params.id);
   if (!control)
     return NextResponse.json({ error: "Control not found." }, { status: 404 });

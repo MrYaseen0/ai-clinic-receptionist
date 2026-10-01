@@ -13,8 +13,8 @@ export async function GET(
   if (isRateLimited(`lab:${ip}`, 120, 60_000)) {
     return NextResponse.json({ error: "Too many requests." }, { status: 429 });
   }
-  seedIfEmpty();
-  const db = loadDb();
+  await seedIfEmpty();
+  const db = await loadDb();
   const order = db.orders.find((o) => o.id === params.id);
   if (!order)
     return NextResponse.json({ error: "Invoice not found." }, { status: 404 });

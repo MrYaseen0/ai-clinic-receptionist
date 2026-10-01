@@ -10,6 +10,6 @@ export async function POST(req: NextRequest) {
   if (isRateLimited(`lab-seed:${ip}`, 10, 60_000)) {
     return NextResponse.json({ error: "Too many requests." }, { status: 429 });
   }
-  const seeded = seedIfEmpty();
+  const seeded = await seedIfEmpty();
   return NextResponse.json({ seeded });
 }

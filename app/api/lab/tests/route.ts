@@ -11,12 +11,12 @@ import { seedIfEmpty } from "@/lib/lab-seed";
 
 export const dynamic = "force-dynamic";
 
-function ok(req: NextRequest): NextResponse | null {
+async function ok(req: NextRequest): Promise<NextResponse | null> {
   const ip = getClientIp(req);
   if (isRateLimited(`lab:${ip}`, 120, 60_000)) {
     return NextResponse.json({ error: "Too many requests." }, { status: 429 });
   }
-  seedIfEmpty();
+  await seedIfEmpty();
   return null;
 }
 
@@ -60,9 +60,9 @@ function sanitizeParams(raw: unknown): LabParam[] | null {
 }
 
 export async function GET(req: NextRequest) {
-  const lim = ok(req);
+  const lim = await ok(req);
   if (lim) return lim;
-  const db = loadDb();
+  const db = await loadDb();
   const { searchParams } = new URL(req.url);
   const category = searchParams.get("category") || "";
   const q = (searchParams.get("search") || "").toLowerCase().trim();
@@ -78,7 +78,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const lim = ok(req);
+  const lim = await ok(req);
   if (lim) return lim;
   try {
     const body = await req.json();
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
 
-    const db = loadDb();
+    const db = await loadDb();
     if (db.tests.some((t) => t.code === code))
       return NextResponse.json(
         { error: "A test with this code already exists." },
@@ -134,7 +134,7 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString(),
     };
     db.tests.push(t);
-    saveDb();
+    await saveDb();
     return NextResponse.json({ test: t }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Could not create test." }, { status: 500 });

@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
       return bad("Please choose a valid time slot (e.g. 5:00 PM).");
     }
 
-    const booking = createBooking({
+    const booking = await createBooking({
       name,
       phone,
       doctorId: doctor.id,

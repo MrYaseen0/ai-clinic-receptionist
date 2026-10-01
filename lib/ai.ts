@@ -217,24 +217,24 @@ const LAB_ALIASES: Record<string, string[]> = {
   MP: ["malaria"],
 };
 
-function getLabTests(): LabTest[] {
+async function getLabTests(): Promise<LabTest[]> {
   try {
-    seedIfEmpty();
-    return loadDb().tests.filter((t) => t.active);
+    await seedIfEmpty();
+    return (await loadDb()).tests.filter((t) => t.active);
   } catch {
     return [];
   }
 }
 
-function labTestById(id?: string): LabTest | undefined {
-  return getLabTests().find((t) => t.id === id);
+async function labTestById(id?: string): Promise<LabTest | undefined> {
+  return (await getLabTests()).find((t) => t.id === id);
 }
 
 /** Match lab tests mentioned in free text (English + Roman Urdu). */
-function matchLabTests(text: string): LabTest[] {
+async function matchLabTests(text: string): Promise<LabTest[]> {
   const t = text.toLowerCase();
   const hits: LabTest[] = [];
-  for (const test of getLabTests()) {
+  for (const test of await getLabTests()) {
     const aliases = LAB_ALIASES[test.code] || [];
     const needles = [
       test.code.toLowerCase(),
@@ -246,9 +246,9 @@ function matchLabTests(text: string): LabTest[] {
   return hits;
 }
 
-function labTestsSummary(lang: Lang): string {
+async function labTestsSummary(lang: Lang): Promise<string> {
   const byCat = new Map<string, LabTest[]>();
-  for (const t of getLabTests()) {
+  for (const t of await getLabTests()) {
     const arr = byCat.get(t.category) || [];
     arr.push(t);
     byCat.set(t.category, arr);
@@ -265,16 +265,16 @@ function labTestsSummary(lang: Lang): string {
   return `${head}\n${lines.join("\n")}`;
 }
 
-function askLabFor(
+async function askLabFor(
   field: "labTests" | "name" | "phone" | "labDate",
   lang: Lang
-): string {
+): Promise<string> {
   if (field === "labTests") {
     const intro =
       lang === "ur"
         ? "Kaunsa test karwana hai? Naam likh dein (masalan: CBC, sugar, thyroid)."
         : "Which test would you like? Type the name (e.g. CBC, sugar, thyroid).";
-    return `${intro}\n${labTestsSummary(lang)}`;
+    return `${intro}\n${await labTestsSummary(lang)}`;
   }
   if (field === "labDate")
     return lang === "ur"
@@ -283,10 +283,13 @@ function askLabFor(
   return askFor(field, lang);
 }
 
-function labConfirmSummary(slots: BookingSlots, lang: Lang): string {
-  const tests = (slots.labTests || [])
-    .map(labTestById)
-    .filter((t): t is LabTest => !!t);
+async function labConfirmSummary(
+  slots: BookingSlots,
+  lang: Lang
+): Promise<string> {
+  const tests = (
+    await Promise.all((slots.labTests || []).map((id) => labTestById(id)))
+  ).filter((t): t is LabTest => !!t);
   const total = tests.reduce((s, t) => s + t.price, 0);
   const rows = [
     ...tests.map((t) => `- ${t.name} (Rs. ${t.price})`),
@@ -300,12 +303,12 @@ function labConfirmSummary(slots: BookingSlots, lang: Lang): string {
     : `Please confirm your lab order:\n${rows.join("\n")}\n\nReply YES to confirm, or CANCEL to start over.`;
 }
 
-function labReply(
+async function labReply(
   text: string,
   slots: BookingSlots,
   lang: Lang,
   matched: LabTest[]
-): ChatResult {
+): Promise<ChatResult> {
   const t = text.toLowerCase().trim();
   const next: BookingSlots = { ...slots };
 
@@ -337,13 +340,13 @@ function labReply(
   );
   if (!missing) {
     return {
-      reply: labConfirmSummary(next, lang),
+      reply: await labConfirmSummary(next, lang),
       slots: next,
       bookingReady: true,
     };
   }
   return {
-    reply: askLabFor(missing, lang),
+    reply: await askLabFor(missing, lang),
     slots: next,
     bookingReady: false,
   };
@@ -395,7 +398,10 @@ function confirmSummary(slots: BookingSlots, lang: Lang): string {
 }
 
 /** Rule-based bilingual engine — zero config, works offline. */
-function mockReply(text: string, slots: BookingSlots): ChatResult {
+async function mockReply(
+  text: string,
+  slots: BookingSlots
+): Promise<ChatResult> {
   const lang = detectLang(text);
   const t = text.toLowerCase().trim();
   const next: BookingSlots = { ...slots };
@@ -414,13 +420,13 @@ function mockReply(text: string, slots: BookingSlots): ChatResult {
 
   // --- Lab test booking flow (English + Roman Urdu) ---
   const inLabFlow = !!slots.labTests && slots.labTests.length > 0;
-  const matchedLab = matchLabTests(text);
+  const matchedLab = await matchLabTests(text);
   const labTrigger =
     /\b(lab( test)?s?|tests? karwana|tests? karwane|khoon ka test|blood test)\b/.test(
       t
     );
   if (inLabFlow || matchedLab.length > 0 || (labTrigger && !mentionsDoctor(text))) {
-    return labReply(text, slots, lang, matchedLab);
+    return await labReply(text, slots, lang, matchedLab);
   }
 
   // Extract whatever the user gave us
@@ -544,7 +550,7 @@ async function groqReply(
       `${d.id}: ${d.name}, ${d.specialty}, Rs.${d.fee}, ${d.timings}, ${d.days}`
   ).join("\n");
 
-  const labList = getLabTests()
+  const labList = (await getLabTests())
     .map((t) => `${t.id}: ${t.code} — ${t.name}, Rs.${t.price}`)
     .join("\n");
 
@@ -605,9 +611,13 @@ RULES:
     }
     const labIds = parsed.slots?.labTests;
     if (Array.isArray(labIds)) {
-      const valid = labIds.filter(
-        (x): x is string => typeof x === "string" && !!labTestById(x)
+      const ids = labIds.filter(
+        (x): x is string => typeof x === "string"
       );
+      const valid: string[] = [];
+      for (const x of ids) {
+        if (await labTestById(x)) valid.push(x);
+      }
       if (valid.length > 0)
         merged.labTests = Array.from(new Set([...(merged.labTests || []), ...valid]));
     }
@@ -638,7 +648,7 @@ export async function getReply(
   const mode = (process.env.AI_MODE || "mock").toLowerCase();
   const lastUser = [...messages].reverse().find((m) => m.role === "user");
   if (mode === "groq") return groqReply(messages, slots);
-  return mockReply(lastUser?.content || "", slots);
+  return await mockReply(lastUser?.content || "", slots);
 }
 
 export function currentMode(): "mock" | "groq" {

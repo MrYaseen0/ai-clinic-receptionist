@@ -18,12 +18,12 @@ import { seedIfEmpty } from "@/lib/lab-seed";
 
 export const dynamic = "force-dynamic";
 
-function ok(req: NextRequest): NextResponse | null {
+async function ok(req: NextRequest): Promise<NextResponse | null> {
   const ip = getClientIp(req);
   if (isRateLimited(`lab:${ip}`, 120, 60_000)) {
     return NextResponse.json({ error: "Too many requests." }, { status: 429 });
   }
-  seedIfEmpty();
+  await seedIfEmpty();
   return null;
 }
 
@@ -38,9 +38,9 @@ const STATUSES: OrderStatus[] = [
 const PRIORITIES: Priority[] = ["routine", "urgent", "stat"];
 
 export async function GET(req: NextRequest) {
-  const lim = ok(req);
+  const lim = await ok(req);
   if (lim) return lim;
-  const db = loadDb();
+  const db = await loadDb();
   const { searchParams } = new URL(req.url);
   const status = searchParams.get("status") || "";
   const priority = searchParams.get("priority") || "";
@@ -71,11 +71,11 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const lim = ok(req);
+  const lim = await ok(req);
   if (lim) return lim;
   try {
     const body = await req.json();
-    const db = loadDb();
+    const db = await loadDb();
 
     // --- resolve patient: existing id OR inline name+phone ---
     let patientId = typeof body?.patientId === "string" ? body.patientId : "";
@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
         const gender = body?.gender;
         patient = {
           id: newPatientId(),
-          serial: nextPatientSerial(),
+          serial: await nextPatientSerial(),
           name: patientName,
           phone: patientPhone,
           age: Number.isInteger(age) && age >= 0 && age <= 130 ? age : 30,
@@ -145,7 +145,7 @@ export async function POST(req: NextRequest) {
     const source = body?.source === "chat" ? "chat" : "counter";
 
     const total = testIds.reduce((s, tid) => s + (testsById.get(tid)?.price || 0), 0);
-    const id = nextOrderId();
+    const id = await nextOrderId();
     const order: LabOrder = {
       id,
       patientId,
@@ -170,7 +170,7 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString(),
     };
     db.orders.push(order);
-    saveDb();
+    await saveDb();
     return NextResponse.json({ order, patient }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Could not create order." }, { status: 500 });

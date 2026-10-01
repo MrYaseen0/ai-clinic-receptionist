@@ -13,18 +13,18 @@ export async function POST(
   if (isRateLimited(`lab:${ip}`, 60, 60_000)) {
     return NextResponse.json({ error: "Too many requests." }, { status: 429 });
   }
-  seedIfEmpty();
+  await seedIfEmpty();
   try {
     const body = await req.json().catch(() => ({}));
     const by = cleanText(body?.by, 40) || "pathologist";
-    const db = loadDb();
+    const db = await loadDb();
     const alert = db.alerts.find((a) => a.id === params.id);
     if (!alert)
       return NextResponse.json({ error: "Alert not found." }, { status: 404 });
     alert.acknowledged = true;
     alert.acknowledgedBy = by;
     alert.acknowledgedAt = new Date().toISOString();
-    saveDb();
+    await saveDb();
     return NextResponse.json({ alert });
   } catch {
     return NextResponse.json({ error: "Could not acknowledge alert." }, { status: 500 });

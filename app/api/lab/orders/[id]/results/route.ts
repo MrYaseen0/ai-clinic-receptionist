@@ -21,7 +21,7 @@ export async function POST(
   if (isRateLimited(`lab:${ip}`, 60, 60_000)) {
     return NextResponse.json({ error: "Too many requests." }, { status: 429 });
   }
-  seedIfEmpty();
+  await seedIfEmpty();
   try {
     const body = await req.json();
     const entries = Array.isArray(body?.entries) ? body.entries : [];
@@ -33,7 +33,7 @@ export async function POST(
         { status: 400 }
       );
 
-    const db = loadDb();
+    const db = await loadDb();
     const order = db.orders.find((o) => o.id === params.id);
     if (!order)
       return NextResponse.json({ error: "Order not found." }, { status: 404 });
@@ -105,7 +105,7 @@ export async function POST(
       }
     }
 
-    saveDb();
+    await saveDb();
     return NextResponse.json({ saved, criticalAlerts: newAlerts });
   } catch {
     return NextResponse.json({ error: "Could not save results." }, { status: 500 });

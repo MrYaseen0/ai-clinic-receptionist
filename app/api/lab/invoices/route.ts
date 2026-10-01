@@ -11,8 +11,8 @@ export async function GET(req: NextRequest) {
   if (isRateLimited(`lab:${ip}`, 120, 60_000)) {
     return NextResponse.json({ error: "Too many requests." }, { status: 429 });
   }
-  seedIfEmpty();
-  const db = loadDb();
+  await seedIfEmpty();
+  const db = await loadDb();
   const { searchParams } = new URL(req.url);
   const unpaidOnly = searchParams.get("unpaid") === "true";
   const patientsById = new Map(db.patients.map((p) => [p.id, p]));

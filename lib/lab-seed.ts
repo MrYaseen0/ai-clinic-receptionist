@@ -5,19 +5,18 @@ import {
   nextOrderId,
   makeBarcode,
   newPatientId,
-  newTestId,
   newAlertId,
   newPaymentId,
   newItemId,
   newQcId,
   flagValue,
   type LabTest,
-  type LabParam,
   type LabOrder,
   type LabPatient,
   type ResultEntry,
   type QcRun,
 } from "./lab-store";
+import { buildStaticCatalog } from "./lab-catalog";
 
 /** Deterministic pseudo-random for reproducible QC runs. */
 function mulberry32(seed: number) {
@@ -41,119 +40,10 @@ function isoToday(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-type P = [string, string, string, number, number, number?, number?];
-// key, name, unit, refLow, refHigh, criticalLow?, criticalHigh?
-function params(list: P[]): LabParam[] {
-  return list.map(([key, name, unit, refLow, refHigh, cL, cH]) => ({
-    key,
-    name,
-    unit,
-    refLow,
-    refHigh,
-    ...(cL !== undefined ? { criticalLow: cL } : {}),
-    ...(cH !== undefined ? { criticalHigh: cH } : {}),
-  }));
-}
-
-function test(def: {
-  code: string;
-  name: string;
-  category: string;
-  price: number;
-  sampleType: string;
-  turnaroundHrs: number;
-  params: P[];
-}): LabTest {
-  return {
-    id: newTestId(),
-    code: def.code,
-    name: def.name,
-    category: def.category,
-    price: def.price,
-    sampleType: def.sampleType,
-    turnaroundHrs: def.turnaroundHrs,
-    params: params(def.params),
-    active: true,
-    createdAt: new Date().toISOString(),
-  };
-}
-
-function buildTests(): LabTest[] {
-  return [
-    test({ code: "CBC", name: "Complete Blood Count (CBC)", category: "Hematology", price: 800, sampleType: "EDTA Blood", turnaroundHrs: 4,
-      params: [
-        ["hb", "Hemoglobin", "g/dL", 12.0, 16.0, 7.0, 20.0],
-        ["wbc", "WBC Count", "x10^9/L", 4.0, 11.0, 2.0, 30.0],
-        ["rbc", "RBC Count", "x10^12/L", 4.2, 5.4],
-        ["plt", "Platelet Count", "x10^9/L", 150, 400, 50, 1000],
-        ["mcv", "MCV", "fL", 80, 100],
-      ] }),
-    test({ code: "ESR", name: "ESR (Westergren)", category: "Hematology", price: 300, sampleType: "EDTA Blood", turnaroundHrs: 3,
-      params: [["esr", "ESR", "mm/hr", 0, 20, undefined, 100]] }),
-    test({ code: "LIPID", name: "Lipid Profile", category: "Biochemistry", price: 1500, sampleType: "Serum (Fasting)", turnaroundHrs: 6,
-      params: [
-        ["chol", "Total Cholesterol", "mg/dL", 125, 200, undefined, 300],
-        ["tg", "Triglycerides", "mg/dL", 50, 150, undefined, 500],
-        ["hdl", "HDL Cholesterol", "mg/dL", 40, 80],
-        ["ldl", "LDL Cholesterol", "mg/dL", 0, 130, undefined, 190],
-        ["vldl", "VLDL Cholesterol", "mg/dL", 5, 30],
-      ] }),
-    test({ code: "LFT", name: "Liver Function Test (LFT)", category: "Biochemistry", price: 1200, sampleType: "Serum", turnaroundHrs: 6,
-      params: [
-        ["bili", "Bilirubin Total", "mg/dL", 0.2, 1.2, undefined, 5.0],
-        ["alt", "ALT (SGPT)", "U/L", 7, 56, undefined, 300],
-        ["ast", "AST (SGOT)", "U/L", 10, 40, undefined, 300],
-        ["alp", "Alkaline Phosphatase", "U/L", 44, 147],
-        ["alb", "Albumin", "g/dL", 3.5, 5.5, 2.0],
-      ] }),
-    test({ code: "RFT", name: "Kidney Function Test (RFT)", category: "Biochemistry", price: 1200, sampleType: "Serum", turnaroundHrs: 6,
-      params: [
-        ["creat", "Creatinine", "mg/dL", 0.6, 1.2, undefined, 5.0],
-        ["urea", "Urea", "mg/dL", 15, 45, undefined, 150],
-        ["na", "Sodium", "mmol/L", 136, 145, 120, 160],
-        ["k", "Potassium", "mmol/L", 3.5, 5.1, 2.8, 6.0],
-      ] }),
-    test({ code: "HBA1C", name: "HbA1c (Glycated Hemoglobin)", category: "Biochemistry", price: 900, sampleType: "EDTA Blood", turnaroundHrs: 4,
-      params: [["hba1c", "HbA1c", "%", 4.0, 5.6, undefined, 10.0]] }),
-    test({ code: "FBS", name: "Fasting Blood Sugar", category: "Biochemistry", price: 300, sampleType: "Fluoride Plasma", turnaroundHrs: 2,
-      params: [["fbs", "Glucose Fasting", "mg/dL", 70, 100, 50, 300]] }),
-    test({ code: "CRP", name: "C-Reactive Protein (CRP)", category: "Biochemistry", price: 1000, sampleType: "Serum", turnaroundHrs: 4,
-      params: [["crp", "CRP", "mg/L", 0, 6, undefined, 100]] }),
-    test({ code: "VITD", name: "Vitamin D (25-OH)", category: "Biochemistry", price: 2500, sampleType: "Serum", turnaroundHrs: 24,
-      params: [["vitd", "Vitamin D", "ng/mL", 30, 100, 10]] }),
-    test({ code: "B12", name: "Vitamin B12", category: "Biochemistry", price: 2200, sampleType: "Serum", turnaroundHrs: 24,
-      params: [["b12", "Vitamin B12", "pg/mL", 200, 900, 150]] }),
-    test({ code: "FERR", name: "Serum Ferritin", category: "Biochemistry", price: 1800, sampleType: "Serum", turnaroundHrs: 24,
-      params: [["ferr", "Ferritin", "ng/mL", 30, 400, 10]] }),
-    test({ code: "TFT", name: "Thyroid Profile (T3/T4/TSH)", category: "Endocrinology", price: 1800, sampleType: "Serum", turnaroundHrs: 8,
-      params: [
-        ["t3", "T3 Total", "ng/mL", 0.8, 2.0],
-        ["t4", "T4 Total", "ug/dL", 5.0, 12.0],
-        ["tsh", "TSH", "uIU/mL", 0.4, 4.0, 0.05, 20.0],
-      ] }),
-    test({ code: "URINE", name: "Urine Complete Examination", category: "Clinical Pathology", price: 400, sampleType: "Urine", turnaroundHrs: 3,
-      params: [
-        ["ph", "pH", "", 5.0, 8.0],
-        ["sg", "Specific Gravity", "", 1.005, 1.03],
-        ["pus", "Pus Cells", "/HPF", 0, 5, undefined, 50],
-        ["rbc_u", "RBC", "/HPF", 0, 3],
-      ] }),
-    test({ code: "HBSAG", name: "HBsAg (Hepatitis B Screen)", category: "Immunology", price: 800, sampleType: "Serum", turnaroundHrs: 6,
-      params: [["hbsag", "HBsAg Index", "S/CO", 0, 0.9, undefined, 5.0]] }),
-    test({ code: "HCV", name: "Anti-HCV (Hepatitis C Screen)", category: "Immunology", price: 800, sampleType: "Serum", turnaroundHrs: 6,
-      params: [["hcv", "Anti-HCV", "S/CO", 0, 0.9, undefined, 5.0]] }),
-    test({ code: "DENGUE", name: "Dengue NS1 Antigen", category: "Immunology", price: 1500, sampleType: "Serum", turnaroundHrs: 4,
-      params: [["ns1", "NS1 Antigen Index", "", 0, 0.9, undefined, 5.0]] }),
-    test({ code: "BHCG", name: "Beta-hCG (Pregnancy)", category: "Immunology", price: 1500, sampleType: "Serum", turnaroundHrs: 6,
-      params: [["bhcg", "Beta-hCG", "mIU/mL", 0, 5, undefined, 1000]] }),
-    test({ code: "MP", name: "Malaria Parasite (MP)", category: "Parasitology", price: 500, sampleType: "EDTA Blood", turnaroundHrs: 3,
-      params: [["mp", "Malarial Parasites", "/uL", 0, 0, undefined, 100]] }),
-  ];
-}
-
 function resultEntry(
-  param: LabParam,
+  param: { key: string; name: string },
   value: number,
+  flag: ResultEntry["flag"],
   by: string,
   daysAgo: number
 ): ResultEntry {
@@ -162,7 +52,7 @@ function resultEntry(
   return {
     paramKey: param.key,
     value,
-    flag: flagValue(param, value),
+    flag,
     enteredAt: d.toISOString(),
     enteredBy: by,
   };
@@ -181,7 +71,7 @@ function fillResults(
     const entries: ResultEntry[] = [];
     for (const [pkey, val] of Object.entries(pv)) {
       const p = t.params.find((x) => x.key === pkey);
-      if (p) entries.push(resultEntry(p, val, by, daysAgo));
+      if (p) entries.push(resultEntry(p, val, flagValue(p, val), by, daysAgo));
     }
     if (entries.length) order.results[t.id] = entries;
   }
@@ -204,15 +94,21 @@ function mkHistory(
   });
 }
 
-/** Seed demo data on first run. Returns true when seeding happened. */
-export function seedIfEmpty(): boolean {
-  const db = loadDb();
-  if (db.seeded || db.patients.length > 0 || db.tests.length > 0) return false;
+/**
+ * Seed demo data on first run. Returns true when seeding happened.
+ * The 18-test catalog itself is static in code (lib/lab-catalog.ts) and is
+ * not seeded — only patients, orders, alerts, inventory and QC runs are.
+ */
+export async function seedIfEmpty(): Promise<boolean> {
+  const db = await loadDb();
+  // NOTE: db.tests is always non-empty (static catalog), so the guard looks
+  // at patients/orders instead.
+  if (db.seeded || db.patients.length > 0 || db.orders.length > 0)
+    return false;
 
-  const tests = buildTests();
+  const tests = buildStaticCatalog();
   const byCode: Record<string, LabTest> = {};
   for (const t of tests) byCode[t.code] = t;
-  db.tests = tests;
 
   // --- Patients ---
   const pdefs: Array<[string, string, number, "male" | "female" | "other", string?]> = [
@@ -223,19 +119,22 @@ export function seedIfEmpty(): boolean {
     ["Bilal Ahmed", "03017654321", 39, "male", "Kohat Road, Peshawar"],
     ["Nazia Parveen", "03216549870", 51, "female", "Dalazak Road, Peshawar"],
   ];
-  const patients: LabPatient[] = pdefs.map(([name, phone, age, gender, address]) => ({
-    id: newPatientId(),
-    serial: nextPatientSerial(),
-    name,
-    phone,
-    age,
-    gender,
-    address,
-    createdAt: new Date().toISOString(),
-  }));
+  const patients: LabPatient[] = [];
+  for (const [name, phone, age, gender, address] of pdefs) {
+    patients.push({
+      id: newPatientId(),
+      serial: await nextPatientSerial(),
+      name,
+      phone,
+      age,
+      gender,
+      address,
+      createdAt: new Date().toISOString(),
+    });
+  }
   db.patients = patients;
 
-  const orderFor = (
+  const orderFor = async (
     patientIdx: number,
     codes: string[],
     referringDoctor: string,
@@ -243,8 +142,8 @@ export function seedIfEmpty(): boolean {
     status: LabOrder["status"],
     sampleDaysAgo: number,
     source: LabOrder["source"] = "counter"
-  ): LabOrder => {
-    const id = nextOrderId();
+  ): Promise<LabOrder> => {
+    const id = await nextOrderId();
     const testIds = codes.map((c) => byCode[c].id);
     const total = codes.reduce((s, c) => s + byCode[c].price, 0);
     const d = new Date();
@@ -276,26 +175,26 @@ export function seedIfEmpty(): boolean {
   };
 
   // O1: registered (today)
-  const o1 = orderFor(0, ["CBC"], "Dr. Imran Sheikh", "routine", "registered", 0);
+  const o1 = await orderFor(0, ["CBC"], "Dr. Imran Sheikh", "routine", "registered", 0);
   // O2: sample_collected
-  const o2 = orderFor(1, ["LIPID", "FBS"], "Dr. Sara Malik", "urgent", "sample_collected", 1);
+  const o2 = await orderFor(1, ["LIPID", "FBS"], "Dr. Sara Malik", "urgent", "sample_collected", 1);
   // O3: in_lab, partial results (normal)
-  const o3 = orderFor(2, ["CBC", "ESR"], "Dr. Imran Sheikh", "routine", "in_lab", 2);
+  const o3 = await orderFor(2, ["CBC", "ESR"], "Dr. Imran Sheikh", "routine", "in_lab", 2);
   fillResults(o3, byCode, {
     CBC: { hb: 14.2, wbc: 7.1, rbc: 4.8, plt: 230, mcv: 88 },
   }, "tech.demo", 1);
   // O4: in_lab, full results with an H flag
-  const o4 = orderFor(3, ["LFT"], "Dr. Kamran Ali", "stat", "in_lab", 2);
+  const o4 = await orderFor(3, ["LFT"], "Dr. Kamran Ali", "stat", "in_lab", 2);
   fillResults(o4, byCode, {
     LFT: { bili: 1.8, alt: 62, ast: 45, alp: 120, alb: 4.1 },
   }, "tech.demo", 1);
   // O5: under_review with CRITICAL low Hb (unacknowledged alert)
-  const o5 = orderFor(4, ["CBC"], "Dr. Sara Malik", "urgent", "under_review", 3);
+  const o5 = await orderFor(4, ["CBC"], "Dr. Sara Malik", "urgent", "under_review", 3);
   fillResults(o5, byCode, {
     CBC: { hb: 6.4, wbc: 9.2, rbc: 3.1, plt: 180, mcv: 74 },
   }, "tech.demo", 2);
   // O6: approved (all normal)
-  const o6 = orderFor(5, ["TFT"], "Dr. Imran Sheikh", "routine", "approved", 4);
+  const o6 = await orderFor(5, ["TFT"], "Dr. Imran Sheikh", "routine", "approved", 4);
   fillResults(o6, byCode, {
     TFT: { t3: 1.4, t4: 8.2, tsh: 2.1 },
   }, "tech.demo", 3);
@@ -303,7 +202,7 @@ export function seedIfEmpty(): boolean {
   o6.reviewNote = "Results verified. Within normal limits.";
   o6.reviewedAt = new Date(Date.now() - 2 * 86400_000).toISOString();
   // O7: report_released, paid in full, diabetic range HbA1c
-  const o7 = orderFor(0, ["HBA1C"], "Dr. Kamran Ali", "routine", "report_released", 5);
+  const o7 = await orderFor(0, ["HBA1C"], "Dr. Kamran Ali", "routine", "report_released", 5);
   fillResults(o7, byCode, { HBA1C: { hba1c: 8.2 } }, "tech.demo", 4);
   o7.reviewedBy = "path.demo";
   o7.reviewNote = "Diabetic range. Advise physician follow-up.";
@@ -313,7 +212,7 @@ export function seedIfEmpty(): boolean {
     date: new Date(Date.now() - 5 * 86400_000).toISOString(), receivedBy: "recep.demo",
   }];
   // O8: report_released, partially paid
-  const o8 = orderFor(1, ["URINE", "CRP"], "Dr. Sara Malik", "routine", "report_released", 6);
+  const o8 = await orderFor(1, ["URINE", "CRP"], "Dr. Sara Malik", "routine", "report_released", 6);
   fillResults(o8, byCode, {
     URINE: { ph: 6.0, sg: 1.02, pus: 8, rbc_u: 1 },
     CRP: { crp: 18 },
@@ -405,7 +304,7 @@ export function seedIfEmpty(): boolean {
   }
 
   db.seeded = true;
-  saveDb();
+  await saveDb();
   return true;
 }
 

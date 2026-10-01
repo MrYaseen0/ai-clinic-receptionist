@@ -11,8 +11,8 @@ export async function GET(req: NextRequest) {
   if (isRateLimited(`lab:${ip}`, 120, 60_000)) {
     return NextResponse.json({ error: "Too many requests." }, { status: 429 });
   }
-  seedIfEmpty();
-  const db = loadDb();
+  await seedIfEmpty();
+  const db = await loadDb();
   const today = new Date().toISOString().slice(0, 10);
   const in30 = new Date();
   in30.setDate(in30.getDate() + 30);

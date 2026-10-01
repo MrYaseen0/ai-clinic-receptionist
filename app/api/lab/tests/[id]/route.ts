@@ -5,12 +5,12 @@ import { seedIfEmpty } from "@/lib/lab-seed";
 
 export const dynamic = "force-dynamic";
 
-function ok(req: NextRequest): NextResponse | null {
+async function ok(req: NextRequest): Promise<NextResponse | null> {
   const ip = getClientIp(req);
   if (isRateLimited(`lab:${ip}`, 120, 60_000)) {
     return NextResponse.json({ error: "Too many requests." }, { status: 429 });
   }
-  seedIfEmpty();
+  await seedIfEmpty();
   return null;
 }
 
@@ -18,11 +18,11 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const lim = ok(req);
+  const lim = await ok(req);
   if (lim) return lim;
   try {
     const body = await req.json();
-    const db = loadDb();
+    const db = await loadDb();
     const t = db.tests.find((x) => x.id === params.id);
     if (!t) return NextResponse.json({ error: "Test not found." }, { status: 404 });
 
@@ -50,7 +50,7 @@ export async function PUT(
         return NextResponse.json({ error: "Turnaround must be 1–720 hours." }, { status: 400 });
       t.turnaroundHrs = Math.round(h);
     }
-    saveDb();
+    await saveDb();
     return NextResponse.json({ test: t });
   } catch {
     return NextResponse.json({ error: "Could not update test." }, { status: 500 });
@@ -61,13 +61,13 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const lim = ok(req);
+  const lim = await ok(req);
   if (lim) return lim;
-  const db = loadDb();
+  const db = await loadDb();
   const t = db.tests.find((x) => x.id === params.id);
   if (!t) return NextResponse.json({ error: "Test not found." }, { status: 404 });
   // Soft-delete: keep historical orders intact.
   t.active = false;
-  saveDb();
+  await saveDb();
   return NextResponse.json({ ok: true });
 }

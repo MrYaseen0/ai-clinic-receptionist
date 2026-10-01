@@ -10,8 +10,8 @@ export async function GET(req: NextRequest) {
   if (isRateLimited(`lab:${ip}`, 120, 60_000)) {
     return NextResponse.json({ error: "Too many requests." }, { status: 429 });
   }
-  seedIfEmpty();
-  const db = loadDb();
+  await seedIfEmpty();
+  const db = await loadDb();
 
   // Revenue trend: last 14 days from recorded payments
   const days: Array<{ date: string; revenue: number }> = [];

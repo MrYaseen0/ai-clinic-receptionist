@@ -33,9 +33,9 @@ export async function GET(
   if (isRateLimited(`lab-pdf:${ip}`, 30, 60_000)) {
     return NextResponse.json({ error: "Too many requests." }, { status: 429 });
   }
-  seedIfEmpty();
+  await seedIfEmpty();
 
-  const db = loadDb();
+  const db = await loadDb();
   const order = db.orders.find((o) => o.id === params.id);
   if (!order)
     return NextResponse.json({ error: "Order not found." }, { status: 404 });
