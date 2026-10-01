@@ -4,7 +4,7 @@ import ChatWidget from "@/components/ChatWidget";
 import { CLINIC } from "@/lib/doctors";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://ai-clinic-receptionist.vercel.app"),
+  metadataBase: new URL("https://ai-clinic-receptionist-gold.vercel.app"),
   title: "AI Clinic Receptionist — Free Open-Source AI Appointment Booking",
   description:
     "Free open-source AI receptionist for clinics. Bilingual chatbot books appointments 24/7 in English and Roman Urdu. Live Next.js demo — no signup needed.",

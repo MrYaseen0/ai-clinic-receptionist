@@ -12,7 +12,7 @@ Built as a working demo for **Sehat Clinic** (fictional). Swap in your own clini
 
 ## Live Demo
 
-**https://ai-clinic-receptionist.vercel.app** *(deployment pending — link goes live after the first Vercel deploy)*
+**https://ai-clinic-receptionist-gold.vercel.app** — try the AI chat (English + Roman Urdu), book an appointment or a lab test, and explore the full Lab (LIMS) module.
 
 ---
 
