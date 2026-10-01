@@ -12,7 +12,7 @@ Built as a working demo for **Sehat Clinic** (fictional). Swap in your own clini
 
 ## Live Demo
 
-**https://ai-clinic-receptionist-gold.vercel.app** — try the AI chat (English + Roman Urdu), book an appointment or a lab test, and explore the full Lab (LIMS) module.
+**https://ai-clinic-receptionist-gold.vercel.app** — try the AI chat (English + Roman Urdu), book an appointment or a lab test, and explore Labortis Pro — the full lab management module.
 
 ---
 
@@ -48,13 +48,13 @@ Zero config to try: the default `mock` AI engine is rule-based and works fully o
 ### Doctors page
 ![Doctors page](docs/screenshots/doctors.png)
 
-### Lab (LIMS) — dashboard
+### Labortis Pro — dashboard
 ![Lab dashboard](docs/screenshots/lab-dashboard.png)
 
-### Lab (LIMS) — technician work queue
+### Labortis Pro — technician work queue
 ![Technician work queue](docs/screenshots/lab-queue.png)
 
-### Lab (LIMS) — pathologist review
+### Labortis Pro — pathologist review
 ![Pathologist review queue](docs/screenshots/lab-review.png)
 
 ---
@@ -73,7 +73,7 @@ Zero config to try: the default `mock` AI engine is rule-based and works fully o
 - Clean, white, professional UI — no external database needed for the demo
 - Deploys to Vercel with zero config
 
-### Lab Module (LIMS) — at `/lab`
+### Labortis Pro — at `/lab`
 
 A full Laboratory Information Management System reimagined from the Python/FastAPI
 [LIMS.Pro](https://github.com/MrYaseen0/lims-pro) project, built natively in Next.js + TypeScript:
@@ -197,7 +197,7 @@ ai-clinic-receptionist/
 
 ## Roadmap
 
-- [x] **Lab module (LIMS)** — patients, test catalog, orders, results, critical alerts, PDF reports, billing, analytics, inventory, QC + chat lab booking
+- [x] **Labortis Pro** — patients, test catalog, orders, results, critical alerts, PDF reports, billing, analytics, inventory, QC + chat lab booking
 - [ ] **WhatsApp integration** — book via WhatsApp Business API (most patients live there)
 - [ ] **Urdu voice** — speech-to-text / text-to-speech so patients can *talk* to the receptionist
 - [ ] **Supabase backend** — replace JSON storage with Postgres + realtime admin dashboard
@@ -228,9 +228,9 @@ Built with Next.js, TypeScript and Tailwind. Licensed [MIT](LICENSE).
 
 ---
 
-## Built by
+## Developed by Yaseen
 
-**Yaseen Ahmad** — Full-Stack Developer (Next.js, TypeScript, AI) based in Peshawar, Pakistan. Available for freelance: https://yaseenahmadexe.vercel.app
+**[Yaseen Ahmad](https://yaseenahmadexe.vercel.app)** — Full-Stack Developer (Next.js, TypeScript, AI) based in Peshawar, Pakistan. Available for freelance: https://yaseenahmadexe.vercel.app
 
 - GitHub: https://github.com/MrYaseen0
 - Portfolio: https://yaseenahmadexe.vercel.app

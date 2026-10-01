@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 
 /**
- * Lab (LIMS) data layer — JSON-file persistence under data/lab.json,
+ * Labortis Pro data layer — JSON-file persistence under data/lab.json,
  * same pattern as lib/bookings.ts.
  *
  * NOTE: On Vercel / serverless the filesystem is ephemeral — this demo

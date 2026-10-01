@@ -13,9 +13,9 @@ export default function LabLayout({ children }: { children: React.ReactNode }) {
     <div className="mx-auto max-w-7xl px-4 py-6">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-slate-900 px-5 py-4 text-white">
         <div>
-          <p className="text-lg font-bold">Sehat Lab — LIMS</p>
+          <p className="text-lg font-bold">Labortis Pro</p>
           <p className="text-xs text-slate-400">
-            Laboratory Information Management · demo module
+            Laboratory Information Management System · demo module
           </p>
         </div>
         <label className="flex items-center gap-2 text-sm">

@@ -76,7 +76,7 @@ export default function Home() {
       name: "Yaseen Ahmad",
       url: "https://yaseenahmadexe.vercel.app",
     },
-    url: "https://ai-clinic-receptionist.vercel.app",
+    url: "https://ai-clinic-receptionist-gold.vercel.app",
     description:
       "Free open-source AI receptionist for clinics. Bilingual chatbot books appointments 24/7 in English and Roman Urdu.",
   };

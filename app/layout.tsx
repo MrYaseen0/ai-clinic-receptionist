@@ -104,14 +104,14 @@ export default function RootLayout({
               {CLINIC.name} — {CLINIC.address}
             </p>
             <p>
-              Built by{" "}
+              Developed by{" "}
               <a
                 href="https://yaseenahmadexe.vercel.app"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-semibold text-slate-700 hover:text-brand-700"
               >
-                Yaseen Ahmad
+                Yaseen
               </a>{" "}
               — Full-Stack Developer
             </p>
